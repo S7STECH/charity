@@ -1,35 +1,936 @@
-// ─────────────────────────────────────────────
-// تصنيف الجمعيات حسب الإيرادات السنوية
-// ─────────────────────────────────────────────
+<!DOCTYPE html>
 
-function classify() {
-  let revenue = parseFloat(
-    document.getElementById("revenue").value
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تصنيف الجمعيات</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --gold-dark: #a07830;
+    --navy: #0a1628;
+    --navy-mid: #112240;
+    --navy-light: #1a3155;
+    --cream: #f5f0e8;
+    --text-light: #e8e0d0;
+    --text-muted: #8899aa;
+  }
+
+- { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+font-family: ‘Cairo’, sans-serif;
+background: var(–navy);
+color: white;
+min-height: 100vh;
+overflow-x: hidden;
+position: relative;
+}
+
+/* ─── Background Pattern ─── */
+body::before {
+content: ‘’;
+position: fixed;
+inset: 0;
+background-image:
+radial-gradient(ellipse 80% 60% at 20% 10%, rgba(201,168,76,0.08) 0%, transparent 60%),
+radial-gradient(ellipse 60% 80% at 80% 90%, rgba(201,168,76,0.06) 0%, transparent 60%),
+repeating-linear-gradient(
+45deg,
+transparent,
+transparent 40px,
+rgba(201,168,76,0.015) 40px,
+rgba(201,168,76,0.015) 41px
+),
+repeating-linear-gradient(
+-45deg,
+transparent,
+transparent 40px,
+rgba(201,168,76,0.015) 40px,
+rgba(201,168,76,0.015) 41px
+);
+pointer-events: none;
+z-index: 0;
+}
+
+/* ─── Decorative Circles ─── */
+.deco-circle {
+position: fixed;
+border-radius: 50%;
+border: 1px solid rgba(201,168,76,0.08);
+pointer-events: none;
+z-index: 0;
+}
+.deco-circle-1 { width: 600px; height: 600px; top: -200px; right: -200px; }
+.deco-circle-2 { width: 400px; height: 400px; bottom: -150px; left: -150px; border-color: rgba(201,168,76,0.05); }
+.deco-circle-3 { width: 250px; height: 250px; top: 50%; left: 5%; border-color: rgba(201,168,76,0.04); }
+
+/* ─── Main Layout ─── */
+.page-wrapper {
+position: relative;
+z-index: 1;
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+}
+
+/* ─── Header ─── */
+header {
+padding: 30px 50px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+border-bottom: 1px solid rgba(201,168,76,0.15);
+}
+
+.logo {
+display: flex;
+align-items: center;
+gap: 14px;
+}
+
+.logo-icon {
+width: 46px;
+height: 46px;
+background: linear-gradient(135deg, var(–gold), var(–gold-dark));
+border-radius: 12px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 22px;
+box-shadow: 0 4px 20px rgba(201,168,76,0.3);
+}
+
+.logo-text {
+font-family: ‘Tajawal’, sans-serif;
+font-weight: 800;
+font-size: 20px;
+background: linear-gradient(135deg, var(–gold-light), var(–gold));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+}
+
+.header-tag {
+font-size: 12px;
+color: var(–text-muted);
+font-weight: 300;
+letter-spacing: 2px;
+text-transform: uppercase;
+border: 1px solid rgba(201,168,76,0.2);
+padding: 6px 14px;
+border-radius: 20px;
+}
+
+/* ─── Code Section ─── */
+.code-section {
+padding: 40px 50px 0;
+animation: fadeUp 0.6s ease forwards;
+}
+
+.section-label {
+display: flex;
+align-items: center;
+gap: 10px;
+margin-bottom: 18px;
+font-size: 13px;
+color: var(–gold);
+font-weight: 600;
+letter-spacing: 1px;
+text-transform: uppercase;
+}
+
+.section-label::before {
+content: ‘’;
+display: block;
+width: 28px;
+height: 2px;
+background: var(–gold);
+border-radius: 2px;
+}
+
+.code-wrapper {
+background: rgba(5, 12, 28, 0.7);
+border: 1px solid rgba(201,168,76,0.15);
+border-radius: 16px;
+overflow: hidden;
+box-shadow: 0 20px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(201,168,76,0.1);
+}
+
+.code-topbar {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 14px 20px;
+background: rgba(201,168,76,0.05);
+border-bottom: 1px solid rgba(201,168,76,0.1);
+}
+
+.code-dots {
+display: flex;
+gap: 7px;
+}
+
+.dot {
+width: 11px;
+height: 11px;
+border-radius: 50%;
+}
+.dot-r { background: #ff5f57; }
+.dot-y { background: #febc2e; }
+.dot-g { background: #28c840; }
+
+.code-filename {
+font-family: ‘Courier New’, monospace;
+font-size: 12px;
+color: var(–text-muted);
+direction: ltr;
+}
+
+.copy-btn {
+background: rgba(201,168,76,0.1);
+border: 1px solid rgba(201,168,76,0.25);
+color: var(–gold);
+padding: 5px 14px;
+border-radius: 6px;
+font-size: 12px;
+cursor: pointer;
+font-family: ‘Cairo’, sans-serif;
+transition: all 0.2s;
+}
+.copy-btn:hover { background: rgba(201,168,76,0.2); }
+.copy-btn.copied { background: rgba(40,200,100,0.15); border-color: #28c840; color: #28c840; }
+
+.code-scroll {
+max-height: 360px;
+overflow-y: auto;
+padding: 24px 24px;
+scrollbar-width: thin;
+scrollbar-color: rgba(201,168,76,0.3) transparent;
+}
+.code-scroll::-webkit-scrollbar { width: 5px; }
+.code-scroll::-webkit-scrollbar-track { background: transparent; }
+.code-scroll::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.3); border-radius: 5px; }
+
+pre {
+font-family: ‘Courier New’, monospace;
+font-size: 13px;
+line-height: 1.8;
+direction: ltr;
+text-align: left;
+color: #cdd6f4;
+white-space: pre;
+overflow-x: auto;
+}
+
+/* Syntax highlighting */
+.kw  { color: #cba6f7; }
+.fn  { color: #89b4fa; }
+.str { color: #a6e3a1; }
+.num { color: #fab387; }
+.cm  { color: #6c7086; font-style: italic; }
+.tag { color: #f38ba8; }
+.attr{ color: #fab387; }
+.val { color: #a6e3a1; }
+.sel { color: #89dceb; }
+.prop{ color: #89b4fa; }
+.pv  { color: #cba6f7; }
+
+/* ─── Divider ─── */
+.divider {
+display: flex;
+align-items: center;
+gap: 20px;
+padding: 30px 50px;
+opacity: 0.4;
+}
+.divider-line { flex: 1; height: 1px; background: rgba(201,168,76,0.3); }
+.divider-icon { color: var(–gold); font-size: 18px; }
+
+/* ─── App Section ─── */
+.app-section {
+padding: 0 50px 60px;
+animation: fadeUp 0.6s ease 0.2s both;
+}
+
+.app-card {
+background: linear-gradient(145deg, rgba(17,34,64,0.95), rgba(10,22,40,0.98));
+border: 1px solid rgba(201,168,76,0.2);
+border-radius: 24px;
+padding: 50px;
+max-width: 520px;
+margin: 0 auto;
+box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(201,168,76,0.05);
+position: relative;
+overflow: hidden;
+}
+
+.app-card::before {
+content: ‘’;
+position: absolute;
+top: 0;
+left: 50%;
+transform: translateX(-50%);
+width: 60%;
+height: 1px;
+background: linear-gradient(90deg, transparent, var(–gold), transparent);
+}
+
+.card-icon {
+width: 70px;
+height: 70px;
+background: linear-gradient(135deg, rgba(201,168,76,0.2), rgba(201,168,76,0.05));
+border: 1px solid rgba(201,168,76,0.3);
+border-radius: 20px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 30px;
+margin: 0 auto 28px;
+box-shadow: 0 8px 30px rgba(201,168,76,0.1);
+}
+
+.app-title {
+font-family: ‘Tajawal’, sans-serif;
+font-size: 28px;
+font-weight: 800;
+text-align: center;
+margin-bottom: 8px;
+background: linear-gradient(135deg, #fff, var(–text-light));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+}
+
+.app-subtitle {
+text-align: center;
+font-size: 13px;
+color: var(–text-muted);
+margin-bottom: 36px;
+font-weight: 300;
+letter-spacing: 0.5px;
+}
+
+/* ─── Input ─── */
+.input-group {
+position: relative;
+margin-bottom: 20px;
+}
+
+.input-label {
+display: block;
+font-size: 13px;
+color: var(–gold-light);
+font-weight: 600;
+margin-bottom: 10px;
+letter-spacing: 0.5px;
+}
+
+.input-wrapper {
+position: relative;
+}
+
+.input-prefix {
+position: absolute;
+right: 18px;
+top: 50%;
+transform: translateY(-50%);
+font-size: 13px;
+color: var(–gold);
+font-weight: 600;
+pointer-events: none;
+z-index: 1;
+}
+
+input[type=“number”] {
+width: 100%;
+padding: 16px 60px 16px 18px;
+background: rgba(255,255,255,0.04);
+border: 1px solid rgba(201,168,76,0.2);
+border-radius: 14px;
+color: white;
+font-family: ‘Cairo’, sans-serif;
+font-size: 17px;
+font-weight: 600;
+outline: none;
+transition: all 0.3s;
+text-align: left;
+direction: ltr;
+-moz-appearance: textfield;
+}
+input[type=“number”]::-webkit-inner-spin-button,
+input[type=“number”]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+input[type=“number”]:focus {
+border-color: var(–gold);
+background: rgba(201,168,76,0.06);
+box-shadow: 0 0 0 4px rgba(201,168,76,0.08);
+}
+
+input[type=“number”]::placeholder { color: rgba(255,255,255,0.2); font-size: 14px; }
+
+/* ─── Button ─── */
+.classify-btn {
+width: 100%;
+padding: 17px;
+background: linear-gradient(135deg, var(–gold), var(–gold-dark));
+border: none;
+border-radius: 14px;
+color: var(–navy);
+font-family: ‘Tajawal’, sans-serif;
+font-size: 18px;
+font-weight: 800;
+cursor: pointer;
+transition: all 0.3s;
+box-shadow: 0 6px 30px rgba(201,168,76,0.35);
+position: relative;
+overflow: hidden;
+letter-spacing: 0.5px;
+}
+
+.classify-btn::after {
+content: ‘’;
+position: absolute;
+inset: 0;
+background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+opacity: 0;
+transition: opacity 0.3s;
+}
+
+.classify-btn:hover {
+transform: translateY(-2px);
+box-shadow: 0 10px 40px rgba(201,168,76,0.5);
+}
+
+.classify-btn:hover::after { opacity: 1; }
+.classify-btn:active { transform: translateY(0); }
+
+/* ─── Result ─── */
+#result {
+margin-top: 28px;
+min-height: 0;
+transition: all 0.4s;
+}
+
+.result-box {
+background: rgba(201,168,76,0.06);
+border: 1px solid rgba(201,168,76,0.25);
+border-radius: 16px;
+padding: 28px;
+text-align: center;
+animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.result-box.error {
+background: rgba(255,80,80,0.06);
+border-color: rgba(255,80,80,0.3);
+}
+
+.result-icon { font-size: 42px; margin-bottom: 12px; display: block; }
+
+.result-label {
+font-size: 12px;
+color: var(–text-muted);
+letter-spacing: 2px;
+text-transform: uppercase;
+font-weight: 300;
+margin-bottom: 10px;
+}
+
+.result-name {
+font-family: ‘Tajawal’, sans-serif;
+font-size: 32px;
+font-weight: 900;
+background: linear-gradient(135deg, var(–gold-light), var(–gold));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+}
+
+.result-box.error .result-name {
+background: linear-gradient(135deg, #ff9090, #ff5050);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+}
+
+.result-range {
+margin-top: 10px;
+font-size: 13px;
+color: var(–text-muted);
+font-weight: 300;
+}
+
+/* ─── Scale Bar ─── */
+.scale-section {
+margin-top: 36px;
+padding-top: 24px;
+border-top: 1px solid rgba(201,168,76,0.1);
+}
+
+.scale-title {
+font-size: 12px;
+color: var(–text-muted);
+letter-spacing: 1px;
+text-transform: uppercase;
+margin-bottom: 16px;
+font-weight: 300;
+}
+
+.scale-track {
+position: relative;
+height: 6px;
+background: rgba(255,255,255,0.06);
+border-radius: 10px;
+margin-bottom: 12px;
+overflow: visible;
+}
+
+.scale-fill {
+height: 100%;
+border-radius: 10px;
+background: linear-gradient(90deg, var(–gold-dark), var(–gold-light));
+transition: width 0.8s cubic-bezier(0.34, 1.2, 0.64, 1);
+position: relative;
+}
+
+.scale-thumb {
+position: absolute;
+right: -1px;
+top: 50%;
+transform: translateY(-50%);
+width: 14px;
+height: 14px;
+background: var(–gold-light);
+border-radius: 50%;
+border: 2px solid var(–navy);
+box-shadow: 0 0 10px rgba(201,168,76,0.6);
+}
+
+.scale-labels {
+display: flex;
+justify-content: space-between;
+font-size: 10px;
+color: rgba(255,255,255,0.25);
+letter-spacing: 0.5px;
+}
+
+.tier-dots {
+display: flex;
+gap: 8px;
+margin-top: 16px;
+justify-content: center;
+flex-wrap: wrap;
+}
+
+.tier-dot {
+display: flex;
+align-items: center;
+gap: 6px;
+font-size: 11px;
+color: var(–text-muted);
+padding: 4px 10px;
+border-radius: 20px;
+border: 1px solid rgba(255,255,255,0.06);
+transition: all 0.3s;
+}
+
+.tier-dot.active {
+color: var(–gold);
+border-color: rgba(201,168,76,0.3);
+background: rgba(201,168,76,0.07);
+}
+
+.tier-dot-circle {
+width: 7px;
+height: 7px;
+border-radius: 50%;
+background: currentColor;
+}
+
+/* ─── Footer ─── */
+footer {
+padding: 40px 50px 30px;
+border-top: 1px solid rgba(201,168,76,0.12);
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 22px;
+}
+
+.author-card {
+display: flex;
+align-items: center;
+gap: 18px;
+background: linear-gradient(135deg, rgba(201,168,76,0.08), rgba(201,168,76,0.03));
+border: 1px solid rgba(201,168,76,0.22);
+border-radius: 18px;
+padding: 18px 32px;
+box-shadow: 0 4px 24px rgba(201,168,76,0.08);
+position: relative;
+overflow: hidden;
+}
+
+.author-card::before {
+content: ‘’;
+position: absolute;
+top: 0; left: 50%;
+transform: translateX(-50%);
+width: 50%;
+height: 1px;
+background: linear-gradient(90deg, transparent, var(–gold), transparent);
+}
+
+.author-avatar {
+width: 52px;
+height: 52px;
+background: linear-gradient(135deg, var(–gold), var(–gold-dark));
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 24px;
+box-shadow: 0 4px 16px rgba(201,168,76,0.35);
+flex-shrink: 0;
+}
+
+.author-info { text-align: right; }
+
+.author-label {
+font-size: 11px;
+color: var(–text-muted);
+letter-spacing: 1.5px;
+font-weight: 300;
+margin-bottom: 4px;
+}
+
+.author-name {
+font-family: ‘Tajawal’, sans-serif;
+font-size: 20px;
+font-weight: 800;
+background: linear-gradient(135deg, var(–gold-light), var(–gold));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+}
+
+.footer-icons {
+display: flex;
+gap: 14px;
+align-items: center;
+}
+
+.footer-icon-btn {
+width: 38px;
+height: 38px;
+border-radius: 50%;
+background: rgba(201,168,76,0.07);
+border: 1px solid rgba(201,168,76,0.18);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 18px;
+cursor: default;
+transition: all 0.25s;
+text-decoration: none;
+}
+
+.footer-icon-btn:hover {
+background: rgba(201,168,76,0.18);
+transform: translateY(-3px);
+box-shadow: 0 6px 20px rgba(201,168,76,0.2);
+}
+
+.footer-copy {
+font-size: 11px;
+color: rgba(255,255,255,0.18);
+letter-spacing: 0.5px;
+}
+
+footer span { color: var(–gold); }
+
+/* ─── Animations ─── */
+@keyframes fadeUp {
+from { opacity: 0; transform: translateY(24px); }
+to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes popIn {
+from { opacity: 0; transform: scale(0.9); }
+to   { opacity: 1; transform: scale(1); }
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+header, .code-section, .app-section, footer { padding-left: 20px; padding-right: 20px; }
+.divider { padding: 20px; }
+.header-tag { display: none; }
+.app-card { padding: 30px 22px; }
+pre { font-size: 11px; }
+.code-scroll { max-height: 250px; }
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="deco-circle deco-circle-1"></div>
+<div class="deco-circle deco-circle-2"></div>
+<div class="deco-circle deco-circle-3"></div>
+
+<div class="page-wrapper">
+
+  <!-- Header -->
+
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🏛️</div>
+      <div class="logo-text">منظومة تصنيف الجمعيات</div>
+    </div>
+    <div class="header-tag">حسب الإيرادات السنوية</div>
+  </header>
+
+  <!-- Code Section -->
+
+  <section class="code-section">
+    <div class="section-label">الكود المصدري</div>
+
+```
+<div class="code-wrapper">
+  <div class="code-topbar">
+    <div class="code-dots">
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
+    </div>
+    <div class="code-filename">classify.js</div>
+    <button class="copy-btn" id="copyBtn" onclick="copyCode()">نسخ الكود</button>
+  </div>
+
+  <div class="code-scroll" id="codeBlock">
+```
+
+<pre id="codeContent"><span class="cm">// ─────────────────────────────────────────────</span>
+<span class="cm">// تصنيف الجمعيات حسب الإيرادات السنوية</span>
+<span class="cm">// ─────────────────────────────────────────────</span>
+
+<span class="kw">function</span> <span class="fn">classify</span>() {
+  <span class="kw">let</span> revenue = <span class="fn">parseFloat</span>(
+    document.<span class="fn">getElementById</span>(<span class="str">"revenue"</span>).value
   );
 
-  // التحقق من صحة المدخل
-  if (isNaN(revenue) || revenue < 0) {
-    document.getElementById("result").innerHTML
-      = "⚠️ أدخل رقم صحيح";
-    return;
+  <span class="cm">// التحقق من صحة المدخل</span>
+  <span class="kw">if</span> (<span class="fn">isNaN</span>(revenue) || revenue &lt; <span class="num">0</span>) {
+    document.<span class="fn">getElementById</span>(<span class="str">"result"</span>).innerHTML
+      = <span class="str">"⚠️ أدخل رقم صحيح"</span>;
+    <span class="kw">return</span>;
   }
 
-  let result = "";
+  <span class="kw">let</span> result = <span class="str">""</span>;
 
-  // شروط التصنيف
-  if (revenue < 500_000) {
-    result = "متناهية الصغر";      // أقل من 500,000
-  } else if (revenue <= 2_000_000) {
-    result = "صغيرة";              // 500,000 – 2,000,000
-  } else if (revenue <= 8_000_000) {
-    result = "متوسطة";             // 2,000,001 – 8,000,000
-  } else if (revenue <= 30_000_000) {
-    result = "كبيرة";              // 8,000,001 – 30,000,000
-  } else {
-    result = "متناهية الكبر";      // أكثر من 30,000,000
+  <span class="cm">// شروط التصنيف</span>
+  <span class="kw">if</span> (revenue &lt; <span class="num">500_000</span>) {
+    result = <span class="str">"متناهية الصغر"</span>;      <span class="cm">// أقل من 500,000</span>
+  } <span class="kw">else if</span> (revenue &lt;= <span class="num">2_000_000</span>) {
+    result = <span class="str">"صغيرة"</span>;              <span class="cm">// 500,000 – 2,000,000</span>
+  } <span class="kw">else if</span> (revenue &lt;= <span class="num">8_000_000</span>) {
+    result = <span class="str">"متوسطة"</span>;             <span class="cm">// 2,000,001 – 8,000,000</span>
+  } <span class="kw">else if</span> (revenue &lt;= <span class="num">30_000_000</span>) {
+    result = <span class="str">"كبيرة"</span>;              <span class="cm">// 8,000,001 – 30,000,000</span>
+  } <span class="kw">else</span> {
+    result = <span class="str">"متناهية الكبر"</span>;      <span class="cm">// أكثر من 30,000,000</span>
   }
 
-  // عرض النتيجة
-  document.getElementById("result").innerHTML
-    = "📊 التصنيف: " + result;
-}
+  <span class="cm">// عرض النتيجة</span>
+  document.<span class="fn">getElementById</span>(<span class="str">"result"</span>).innerHTML
+    = <span class="str">"📊 التصنيف: "</span> + result;
+}</pre>
+
+```
+  </div>
+</div>
+```
+
+  </section>
+
+  <!-- Divider -->
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-icon">◆</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- App Section -->
+
+  <section class="app-section">
+    <div class="section-label">التطبيق التفاعلي</div>
+
+```
+<div class="app-card">
+  <div class="card-icon">📊</div>
+  <div class="app-title">تصنيف الجمعيات</div>
+  <div class="app-subtitle">أدخل الإيرادات السنوية لتحديد فئة الجمعية</div>
+
+  <div class="input-group">
+    <label class="input-label" for="revenue">الإيرادات السنوية</label>
+    <div class="input-wrapper">
+      <span class="input-prefix">ر.س</span>
+      <input
+        type="number"
+        id="revenue"
+        placeholder="0"
+        min="0"
+        onkeydown="if(event.key==='Enter') classify()"
+        oninput="clearResult()"
+      >
+    </div>
+  </div>
+
+  <button class="classify-btn" onclick="classify()">تصنيف الجمعية</button>
+
+  <div id="result"></div>
+
+  <!-- Scale -->
+  <div class="scale-section">
+    <div class="scale-title">سلم التصنيف</div>
+    <div class="scale-track">
+      <div class="scale-fill" id="scaleFill" style="width:0%">
+        <div class="scale-thumb"></div>
+      </div>
+    </div>
+    <div class="scale-labels">
+      <span>صفر</span>
+      <span>500 ألف</span>
+      <span>2 مليون</span>
+      <span>8 مليون</span>
+      <span>30 مليون+</span>
+    </div>
+
+    <div class="tier-dots">
+      <div class="tier-dot" id="tier-1">
+        <div class="tier-dot-circle"></div>
+        متناهية الصغر
+      </div>
+      <div class="tier-dot" id="tier-2">
+        <div class="tier-dot-circle"></div>
+        صغيرة
+      </div>
+      <div class="tier-dot" id="tier-3">
+        <div class="tier-dot-circle"></div>
+        متوسطة
+      </div>
+      <div class="tier-dot" id="tier-4">
+        <div class="tier-dot-circle"></div>
+        كبيرة
+      </div>
+      <div class="tier-dot" id="tier-5">
+        <div class="tier-dot-circle"></div>
+        متناهية الكبر
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+  </section>
+
+  <!-- Footer -->
+
+  <footer>
+    <div class="author-card">
+      <div class="author-avatar">👨‍🏫</div>
+      <div class="author-info">
+        <div class="author-label">✦ إعداد وتصميم ✦</div>
+        <div class="author-name">الأستاذ / حسين قعرور</div>
+      </div>
+    </div>
+
+```
+<div class="footer-icons">
+  <div class="footer-icon-btn" title="تصنيف الجمعيات">📊</div>
+  <div class="footer-icon-btn" title="الجمعيات الأهلية">🏛️</div>
+  <div class="footer-icon-btn" title="الإيرادات السنوية">💰</div>
+  <div class="footer-icon-btn" title="الريال السعودي">🇸🇦</div>
+  <div class="footer-icon-btn" title="البرمجة">💻</div>
+</div>
+
+<div class="footer-copy">جميع الحقوق محفوظة &copy; 2025 &nbsp;·&nbsp; حسب معايير تصنيف <span>الجمعيات الأهلية</span></div>
+```
+
+  </footer>
+
+</div>
+
+<script>
+  const tiers = [
+    { id: "tier-1", name: "متناهية الصغر", icon: "🌱", range: "أقل من 500,000 ر.س",     max: 500000,    pct: 12 },
+    { id: "tier-2", name: "صغيرة",          icon: "🏠", range: "500,000 – 2,000,000 ر.س",  max: 2000000,   pct: 30 },
+    { id: "tier-3", name: "متوسطة",         icon: "🏢", range: "2,000,001 – 8,000,000 ر.س", max: 8000000,   pct: 55 },
+    { id: "tier-4", name: "كبيرة",           icon: "🏗️", range: "8,000,001 – 30,000,000 ر.س",max: 30000000,  pct: 78 },
+    { id: "tier-5", name: "متناهية الكبر",  icon: "🌆", range: "أكثر من 30,000,000 ر.س",   max: Infinity,  pct: 100 },
+  ];
+
+  function clearResult() {
+    document.getElementById("result").innerHTML = "";
+    document.getElementById("scaleFill").style.width = "0%";
+    tiers.forEach(t => document.getElementById(t.id).classList.remove("active"));
+  }
+
+  function classify() {
+    const revenue = parseFloat(document.getElementById("revenue").value);
+
+    if (isNaN(revenue) || revenue < 0) {
+      document.getElementById("result").innerHTML = `
+        <div class="result-box error">
+          <span class="result-icon">⚠️</span>
+          <div class="result-label">خطأ في الإدخال</div>
+          <div class="result-name" style="font-size:22px">أدخل رقمًا صحيحًا</div>
+        </div>`;
+      return;
+    }
+
+    let tier = null;
+    for (let t of tiers) {
+      if (revenue < t.max) { tier = t; break; }
+    }
+    if (!tier) tier = tiers[tiers.length - 1];
+
+    // Result
+    document.getElementById("result").innerHTML = `
+      <div class="result-box">
+        <span class="result-icon">${tier.icon}</span>
+        <div class="result-label">تصنيف الجمعية</div>
+        <div class="result-name">${tier.name}</div>
+        <div class="result-range">${tier.range}</div>
+      </div>`;
+
+    // Scale
+    document.getElementById("scaleFill").style.width = tier.pct + "%";
+
+    // Tier dots
+    tiers.forEach(t => document.getElementById(t.id).classList.remove("active"));
+    document.getElementById(tier.id).classList.add("active");
+  }
+
+  // Copy code
+  function copyCode() {
+    const code = document.getElementById("codeContent").innerText;
+    navigator.clipboard.writeText(code).then(() => {
+      const btn = document.getElementById("copyBtn");
+      btn.textContent = "✓ تم النسخ";
+      btn.classList.add("copied");
+      setTimeout(() => {
+        btn.textContent = "نسخ الكود";
+        btn.classList.remove("copied");
+      }, 2000);
+    });
+  }
+</script>
+
+</body>
+</html>
