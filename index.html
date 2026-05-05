@@ -20,7 +20,10 @@ body {
   padding: 30px;
   border-radius: 20px;
   text-align: center;
+  transition: 0.3s;
 }
+
+h2 { margin-bottom: 20px; }
 
 input {
   width: 100%;
@@ -42,7 +45,7 @@ button {
   cursor: pointer;
 }
 
-/* 🔥 التصنيفات */
+/* التصنيفات */
 .tiers {
   margin-top: 25px;
   display: flex;
@@ -54,21 +57,51 @@ button {
 .tier {
   padding: 8px 12px;
   border-radius: 20px;
-  background: rgba(255,255,255,0.05);
   font-size: 13px;
-  border: 1px solid rgba(255,255,255,0.1);
-  transition: 0.3s;
+  transition: all 0.3s ease;
 }
+
+/* ألوان */
+.t1 { background: #2ecc71; color:#000; }
+.t2 { background: #3498db; color:#fff; }
+.t3 { background: #f1c40f; color:#000; }
+.t4 { background: #e67e22; color:#fff; }
+.t5 { background: #e74c3c; color:#fff; }
 
 .tier.active {
-  background: #c9a84c;
-  color: #000;
-  font-weight: bold;
+  transform: scale(1.15);
+  box-shadow: 0 0 15px rgba(255,255,255,0.4);
 }
 
+/* 🔥 أنيميشن النتيجة */
 #result {
   margin-top: 20px;
-  font-size: 20px;
+  font-size: 22px;
+  font-weight: bold;
+  opacity: 0;
+}
+
+/* يظهر بحركة */
+.show {
+  animation: popFade 0.5s ease forwards;
+}
+
+/* اهتزاز خفيف للكرت */
+.shake {
+  animation: shake 0.3s;
+}
+
+@keyframes popFade {
+  0% { transform: scale(0.7); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-2px); }
+  100% { transform: translateX(0); }
 }
 
 footer {
@@ -81,8 +114,8 @@ footer {
 
 <body>
 
-<div class="app-card">
-  <h2>📊 تصنيف الجمعيات</h2>
+<div class="app-card" id="card">
+  <h2>تصنيف الجمعيات حسب الإيرادات</h2>
 
   <input type="number" id="revenue" placeholder="أدخل الإيرادات السنوية">
 
@@ -90,13 +123,12 @@ footer {
 
   <div id="result"></div>
 
-  <!-- 🔽 التصنيفات تظهر هنا -->
   <div class="tiers">
-    <div class="tier" id="t1">🌱 متناهية الصغر</div>
-    <div class="tier" id="t2">🏠 صغيرة</div>
-    <div class="tier" id="t3">🏢 متوسطة</div>
-    <div class="tier" id="t4">🏗️ كبيرة</div>
-    <div class="tier" id="t5">🌆 متناهية الكبر</div>
+    <div class="tier t1" id="t1">متناهية الصغر</div>
+    <div class="tier t2" id="t2">صغيرة</div>
+    <div class="tier t3" id="t3">متوسطة</div>
+    <div class="tier t4" id="t4">كبيرة</div>
+    <div class="tier t5" id="t5">متناهية الكبر</div>
   </div>
 
 </div>
@@ -110,38 +142,60 @@ function resetTiers(){
   document.querySelectorAll('.tier').forEach(t=>t.classList.remove('active'));
 }
 
+function animateCard(){
+  const card = document.getElementById("card");
+  card.classList.remove("shake");
+  void card.offsetWidth; // إعادة تشغيل الأنيميشن
+  card.classList.add("shake");
+}
+
 function classify() {
   let revenue = parseFloat(document.getElementById("revenue").value);
+  let resultBox = document.getElementById("result");
 
   if (isNaN(revenue) || revenue < 0) {
-    document.getElementById("result").innerHTML = "⚠️ أدخل رقم صحيح";
+    resultBox.innerHTML = "أدخل رقم صحيح";
+    resultBox.style.color = "white";
+    resultBox.classList.add("show");
     return;
   }
 
   let result = "";
   let activeId = "";
+  let color = "";
 
   if (revenue < 500000) {
-    result = "🌱 متناهية الصغر";
+    result = "متناهية الصغر";
     activeId = "t1";
+    color = "#2ecc71";
   } else if (revenue <= 2000000) {
-    result = "🏠 صغيرة";
+    result = "صغيرة";
     activeId = "t2";
+    color = "#3498db";
   } else if (revenue <= 8000000) {
-    result = "🏢 متوسطة";
+    result = "متوسطة";
     activeId = "t3";
+    color = "#f1c40f";
   } else if (revenue <= 30000000) {
-    result = "🏗️ كبيرة";
+    result = "كبيرة";
     activeId = "t4";
+    color = "#e67e22";
   } else {
-    result = "🌆 متناهية الكبر";
+    result = "متناهية الكبر";
     activeId = "t5";
+    color = "#e74c3c";
   }
 
-  document.getElementById("result").innerHTML = "📊 التصنيف: " + result;
+  resultBox.classList.remove("show");
+  void resultBox.offsetWidth;
+  resultBox.innerHTML = "التصنيف: " + result;
+  resultBox.style.color = color;
+  resultBox.classList.add("show");
 
   resetTiers();
   document.getElementById(activeId).classList.add("active");
+
+  animateCard();
 }
 </script>
 
